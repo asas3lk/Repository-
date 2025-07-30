@@ -1,0 +1,6 @@
+Flask==2.3.2
+Flask-SQLAlchemy==3.0.3
+psycopg2-binary==2.9.6           # لو تستخدم PostgreSQL
+Werkzeug==2.3.6
+python-dotenv==1.0.0             # لو تستخدم ملف .env لإدارة المتغيرات البيئية
+Flask-Cors==3.1.1                # لو تحتاج تفعيل CORS بين الواجهة والـ backend

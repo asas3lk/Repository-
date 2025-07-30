@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الطالب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #2a0a38 0%, #0a1428 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            position: relative;
+        }
+        body::before, body::after {
+            content: ''; position: absolute; border-radius: 50%; opacity: 0.3; filter: blur(80px); z-index: 0;
+        }
+        body::before { width: 300px; height: 300px; background-color: #5d2b70; top: -50px; left: -50px; }
+        body::after { width: 400px; height: 400px; background-color: #2b5d70; bottom: -100px; right: -100px; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            position: relative; overflow: hidden;
+        }
+        .glass-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%); pointer-events: none;
+        }
+        .content-section { display: none; animation: fadeIn 0.5s ease-in-out; min-height: 80vh; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Sidebar specific styles */
+        .sidebar .profile-info img { border-color: #3b82f6; } /* Blue for Student */
+        .sidebar nav a i { color: #3b82f6; } /* Blue for Student */
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: rgba(59, 130, 246, 0.15); /* Blue hover */
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Table specific styles for Glassmorphism */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.05); /* Slightly visible background */
+            border-radius: 10px;
+            overflow: hidden; /* Ensures rounded corners */
+        }
+        th, td {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            text-align: right;
+            color: #e2e8f0;
+        }
+        th {
+            background: rgba(59, 130, 246, 0.2); /* Blue header */
+            font-weight: bold;
+            color: white;
+            text-transform: capitalize;
+        }
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03); /* Lighter shade for even rows */
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1); /* Hover effect */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .page-wrapper { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; justify-content: space-around; padding: 15px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); border-right: none; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); height: auto; }
+            .sidebar .profile-info { display: none; }
+            .sidebar nav ul { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+            .sidebar nav li { margin-bottom: 0; }
+            .sidebar nav a { padding: 10px 15px; font-size: 1em; flex-direction: column; }
+            .sidebar nav a i { margin: 0 0 5px 0; font-size: 1.2em; }
+            .dashboard-content { max-width: 100%; padding: 30px 20px; height: auto; }
+            .header h1 { font-size: 2.8em; }
+        }
+        @media (max-width: 768px) {
+            .dashboard-content { padding: 30px 15px; }
+            th, td { padding: 8px; font-size: 0.9em; }
+        }
+        @media (max-width: 480px) {
+            .sidebar nav a { padding: 8px 10px; font-size: 0.9em; }
+            .sidebar nav a i { font-size: 1em; }
+            .dashboard-content { padding: 20px 15px; }
+            .header h1 { font-size: 2em; margin-bottom: 25px; }
+        }
+    </style>
+</head>
+<body class="flex-row">
+    <div class="page-wrapper flex flex-1 relative z-10">
+        <aside class="sidebar w-64 bg-white/5 p-8 shadow-lg flex flex-col items-center border-r border-white/10 backdrop-blur-md flex-shrink-0">
+            <div class="profile-info text-center mb-10">
+                <img src="https://via.placeholder.com/90/3b82f6/2d3748?text=ST" alt="صورة الطالب" class="w-24 h-24 rounded-full border-4 border-blue-500 object-cover mb-4 shadow-lg">
+                <h4 class="text-xl text-white font-bold" id="studentName">الطالب</h4>
+                <p class="text-gray-400 text-sm">طالب</p>
+            </div>
+            <nav class="w-full">
+                <ul>
+                    <li><a href="#" class="nav-link flex items-center p-4 text-gray-400 font-bold rounded-lg transition hover:bg-blue-800/20 hover:text-white hover:translate-x-1 hover:shadow-lg active" data-target="student-overview-section"><i class="fas fa-chart-line ml-4 text-blue-500 text-lg"></i> نظرة عامة</a></li>
+                    <li><a href="#" class="nav-link flex items-center p-4 text-gray-400 font-bold rounded-lg transition hover:bg-blue-800/20 hover:text-white hover:translate-x-1 hover:shadow-lg" data-target="student-grades-section"><i class="fas fa-scroll ml-4 text-blue-500 text-lg"></i> رصد الدرجات</a></li>
+                    <li><a href="#" class="nav-link flex items-center p-4 text-gray-400 font-bold rounded-lg transition hover:bg-blue-800/20 hover:text-white hover:translate-x-1 hover:shadow-lg" data-target="student-attendance-section"><i class="fas fa-calendar-check ml-4 text-blue-500 text-lg"></i> تسجيل الحضور</a></li>
+                    <li><a href="#" class="nav-link flex items-center p-4 text-gray-400 font-bold rounded-lg transition hover:bg-blue-800/20 hover:text-white hover:translate-x-1 hover:shadow-lg" data-target="student-schedule-section"><i class="fas fa-calendar-alt ml-4 text-blue-500 text-lg"></i> الجدول الدراسي</a></li>
+                    <li><a href="#" class="nav-link flex items-center p-4 text-gray-400 font-bold rounded-lg transition hover:bg-blue-800/20 hover:text-white hover:translate-x-1 hover:shadow-lg" data-target="student-notes-section"><i class="fas fa-clipboard-list ml-4 text-blue-500 text-lg"></i> ملاحظات المعلمين</a></li>
+                    <li><a href="#" class="nav-link flex items-center p-4 text-gray-400 font-bold rounded-lg transition hover:bg-red-800/20 hover:text-white hover:translate-x-1 hover:shadow-lg" onclick="logout(event)"><i class="fas fa-sign-out-alt ml-4 text-red-400 text-lg"></i> تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="dashboard-content flex-1 p-10 overflow-y-auto h-screen">
+            <header class="text-center mb-12 pb-5 border-b border-white/10">
+                <h1 class="font-['Playfair_Display'] text-5xl text-white font-bold mb-0 tracking-wide drop-shadow-lg">لوحة تحكم الطالب</h1>
+            </header>
+
+            <section id="student-overview-section" class="content-section active glass-card p-8 mb-6">
+                <h3 class="font-['Playfair_Display'] text-3xl text-blue-400 mb-6 text-center drop-shadow-md">ملخص الطالب</h3>
+                <div class="text-gray-300 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p><strong class="text-white">الاسم الكامل:</strong> <span id="fullStudentName"></span></p>
+                    <p><strong class="text-white">الصف:</strong> <span id="studentClass"></span></p>
+                    <p><strong class="text-white">البريد الإلكتروني:</strong> <span id="studentEmail"></span></p>
+                    <p><strong class="text-white">رقم الهاتف:</strong> <span id="studentPhone"></span></p>
+                </div>
+            </section>
+
+            <section id="student-grades-section" class="content-section glass-card p-8 mb-6">
+                <h3 class="font-['Playfair_Display'] text-3xl text-blue-400 mb-6 text-center drop-shadow-md">درجاتي</h3>
+                <table id="gradesTable">
+                    <thead>
+                        <tr>
+                            <th>المادة</th>
+                            <th>النوع</th>
+                            <th>الدرجة</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </section>
+
+            <section id="student-attendance-section" class="content-section glass-card p-8 mb-6">
+                <h3 class="font-['Playfair_Display'] text-3xl text-blue-400 mb-6 text-center drop-shadow-md">سجل الحضور</h3>
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>المادة</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </section>
+
+            <section id="student-schedule-section" class="content-section glass-card p-8 mb-6">
+                <h3 class="font-['Playfair_Display'] text-3xl text-blue-400 mb-6 text-center drop-shadow-md">الجدول الدراسي</h3>
+                <table id="scheduleTable">
+                    <thead>
+                        <tr>
+                            <th>اليوم</th>
+                            <th>المادة</th>
+                            <th>المعلم</th>
+                            <th>وقت البدء</th>
+                            <th>وقت الانتهاء</th>
+                            <th>الغرفة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </section>
+
+            <section id="student-notes-section" class="content-section glass-card p-8 mb-6">
+                <h3 class="font-['Playfair_Display'] text-3xl text-blue-400 mb-6 text-center drop-shadow-md">ملاحظات المعلمين</h3>
+                <table id="notesTable">
+                    <thead>
+                        <tr>
+                            <th>المعلم</th>
+                            <th>الملاحظة</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function showSection(targetId) {
+                contentSections.forEach(section => { section.classList.remove('active'); });
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    document.querySelector('.dashboard-content').scrollTop = 0;
+                }
+            }
+
+            function setActiveLink(clickedLink) {
+                navLinks.forEach(link => { link.classList.remove('active'); });
+                clickedLink.classList.add('active');
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const targetId = this.getAttribute('data-target');
+                    if (this.onclick) { // إذا كان لديه onclick (لزر تسجيل الخروج)
+                        // لا تفعل شيئًا هنا، دالة onclick ستتعامل معها
+                    } else {
+                        showSection(targetId);
+                        setActiveLink(this);
+                    }
+                });
+            });
+
+            // جلب البيانات عند تحميل الصفحة
+            fetchStudentDashboardData();
+            showSection('student-overview-section'); // القسم الافتراضي النشط
+        });
+
+        async function fetchStudentDashboardData() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/dashboard/student', {
+                    credentials: 'include'
+                });
+
+                if (response.status === 403) { // Unauthorized
+                    window.location.href = 'login.html';
+                    return;
+                }
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                // تحديث بيانات الملف الشخصي
+                document.getElementById('studentName').textContent = data.first_name;
+                document.getElementById('fullStudentName').textContent = `${data.first_name} ${data.last_name}`;
+                document.getElementById('studentClass').textContent = data.class_name || 'غير محدد';
+                document.getElementById('studentEmail').textContent = data.email || 'غير متوفر';
+                document.getElementById('studentPhone').textContent = data.phone_number || 'غير متوفر';
+
+                // ملء جدول الدرجات
+                const gradesTableBody = document.getElementById('gradesTable').getElementsByTagName('tbody')[0];
+                gradesTableBody.innerHTML = '';
+                if (data.grades && data.grades.length > 0) {
+                    data.grades.forEach(grade => {
+                        const row = gradesTableBody.insertRow();
+                        row.insertCell(0).textContent = grade.subject;
+                        row.insertCell(1).textContent = grade.assessment_type;
+                        row.insertCell(2).textContent = `${grade.score} / ${grade.max_score}`;
+                        row.insertCell(3).textContent = grade.date;
+                    });
+                } else {
+                    const row = gradesTableBody.insertRow();
+                    const cell = row.insertCell(0);
+                    cell.colSpan = 4;
+                    cell.textContent = 'لا توجد درجات لعرضها حالياً.';
+                    cell.classList.add('text-center', 'text-gray-400');
+                }
+
+                // ملء جدول الحضور
+                const attendanceTableBody = document.getElementById('attendanceTable').getElementsByTagName('tbody')[0];
+                attendanceTableBody.innerHTML = '';
+                if (data.attendance && data.attendance.length > 0) {
+                    data.attendance.forEach(record => {
+                        const row = attendanceTableBody.insertRow();
+                        row.insertCell(0).textContent = record.date;
+                        row.insertCell(1).textContent = record.subject;
+                        row.insertCell(2).textContent = record.status;
+                    });
+                } else {
+                    const row = attendanceTableBody.insertRow();
+                    const cell = row.insertCell(0);
+                    cell.colSpan = 3;
+                    cell.textContent = 'لا يوجد سجل حضور لعرضه حالياً.';
+                    cell.classList.add('text-center', 'text-gray-400');
+                }
+
+                // ملء جدول الجدول الدراسي
+                const scheduleTableBody = document.getElementById('scheduleTable').getElementsByTagName('tbody')[0];
+                scheduleTableBody.innerHTML = '';
+                if (data.schedule && data.schedule.length > 0) {
+                    data.schedule.forEach(item => {
+                        const row = scheduleTableBody.insertRow();
+                        row.insertCell(0).textContent = item.day;
+                        row.insertCell(1).textContent = item.subject;
+                        row.insertCell(2).textContent = item.teacher;
+                        row.insertCell(3).textContent = item.start_time;
+                        row.insertCell(4).textContent = item.end_time;
+                        row.insertCell(5).textContent = item.room;
+                    });
+                } else {
+                    const row = scheduleTableBody.insertRow();
+                    const cell = row.insertCell(0);
+                    cell.colSpan = 6;
+                    cell.textContent = 'لا يوجد جدول دراسي لعرضه حالياً.';
+                    cell.classList.add('text-center', 'text-gray-400');
+                }
+
+                // ملء جدول الملاحظات
+                const notesTableBody = document.getElementById('notesTable').getElementsByTagName('tbody')[0];
+                notesTableBody.innerHTML = '';
+                if (data.notes && data.notes.length > 0) {
+                    data.notes.forEach(note => {
+                        const row = notesTableBody.insertRow();
+                        row.insertCell(0).textContent = note.teacher;
+                        row.insertCell(1).textContent = note.content;
+                        row.insertCell(2).textContent = note.date;
+                    });
+                } else {
+                    const row = notesTableBody.insertRow();
+                    const cell = row.insertCell(0);
+                    cell.colSpan = 3;
+                    cell.textContent = 'لا توجد ملاحظات من المعلمين حالياً.';
+                    cell.classList.add('text-center', 'text-gray-400');
+                }
+
+            } catch (error) {
+                console.error('Error fetching student dashboard data:', error);
+            }
+        }
+
+        async function logout(event) {
+            if (event) event.preventDefault();
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/logout', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    window.location.href = 'login.html';
+                } else {
+                    alert('فشل تسجيل الخروج. يرجى المحاولة مرة أخرى.');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('حدث خطأ أثناء تسجيل الخروج.');
+            }
+        }
+    </script>
+</body>
+</html>

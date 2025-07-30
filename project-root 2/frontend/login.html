@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تسجيل الدخول - نظام إدارة المدرسة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            /* خلفية متدرجة فخمة مع صورة وعتامة */
+            background: linear-gradient(135deg, rgba(42, 10, 56, 0.9) 0%, rgba(10, 20, 40, 0.9) 100%), url('https://images.pexels.com/photos/355952/pexels-photo-355952.jpeg');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e2e8f0; /* لون نص فاتح للخلفية الداكنة */
+        }
+
+        /* دوائر زخرفية في الخلفية لإضفاء لمسة فنية */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.2;
+            filter: blur(80px);
+            z-index: 0;
+        }
+
+        body::before {
+            width: 350px;
+            height: 350px;
+            background-color: #cfae7d; /* ذهبي مطفي */
+            top: -100px;
+            left: -100px;
+        }
+
+        body::after {
+            width: 450px;
+            height: 450px;
+            background-color: #5d2b70; /* بنفسجي داكن */
+            bottom: -150px;
+            right: -150px;
+        }
+
+        /* بطاقة تسجيل الدخول الزجاجية (Glassmorphism) */
+        .login-card {
+            background: rgba(255, 255, 255, 0.15); /* خلفية بيضاء شفافة */
+            backdrop-filter: blur(20px); /* تأثير التمويه */
+            -webkit-backdrop-filter: blur(20px); /* دعم سفاري */
+            border-radius: 20px; /* زوايا مستديرة */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* ظل كبير */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* حدود شفافة */
+            padding: 40px;
+            width: 95%;
+            max-width: 450px;
+            position: relative; /* لضمان ظهورها فوق الدوائر */
+            z-index: 1;
+            overflow: hidden; /* لمنع تجاوز العناصر */
+        }
+
+        /* تأثير ضوئي خفيف داخل البطاقة */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none; /* للسماح بالتفاعل مع العناصر تحتها */
+        }
+
+        .login-card h2 {
+            font-family: 'Playfair Display', serif; /* خط فخم للعناوين */
+            font-size: 2.5rem;
+            color: #cfae7d; /* ذهبي مطفي */
+            margin-bottom: 25px;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(207, 174, 125, 0.3); /* ظل نصي خفيف */
+        }
+
+        .account-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* مسافة بين الأيقونة والنص */
+            background-color: rgba(255, 255, 255, 0.1); /* خلفية شفافة للأزرار */
+            color: #e2e8f0;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+        }
+
+        .account-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px); /* تأثير رفع بسيط */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .account-btn.selected {
+            background-color: #cfae7d; /* لون ذهبي عند الاختيار */
+            color: #2a0a38; /* نص داكن عند الاختيار */
+            font-weight: 700;
+            box-shadow: 0 0 20px rgba(207, 174, 125, 0.5); /* ظل ذهبي بارز */
+            border-color: #cfae7d;
+            transform: scale(1.02); /* تكبير بسيط */
+        }
+
+        .account-btn.selected i {
+            color: #2a0a38; /* تغيير لون الأيقونة أيضاً */
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9); /* خلفية شبه شفافة للحقول */
+            color: #2a0a38; /* لون نص داكن */
+            placeholder-color: #6b7280;
+            border: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .input-field::placeholder {
+            color: #6b7280; /* لون placeholder */
+        }
+
+        .input-field:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(207, 174, 125, 0.5); /* ظل ذهبي عند التركيز */
+        }
+
+        .submit-btn {
+            background-color: #cfae7d; /* لون ذهبي لزر تسجيل الدخول */
+            color: #2a0a38;
+            font-weight: 700;
+            padding: 15px 25px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 1.1em;
+            letter-spacing: 0.5px;
+        }
+
+        .submit-btn:hover {
+            background-color: #b89d6e; /* ذهبي أغمق عند التحويم */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>تسجيل الدخول</h2>
+
+        <div id="account-types" class="grid grid-cols-1 gap-4 mb-8">
+            <button
+                onclick="selectAccount('طالب')"
+                class="account-btn"
+                data-type="طالب"
+            >
+                <i class="fas fa-user-graduate text-2xl"></i> طالب
+            </button>
+            <button
+                onclick="selectAccount('معلم')"
+                class="account-btn"
+                data-type="معلم"
+            >
+                <i class="fas fa-chalkboard-teacher text-2xl"></i> معلم
+            </button>
+            <button
+                onclick="selectAccount('مدير')"
+                class="account-btn"
+                data-type="مدير"
+            >
+                <i class="fas fa-user-tie text-2xl"></i> مدير
+            </button>
+        </div>
+
+        <form id="login-form" class="hidden flex-col gap-5">
+            <input
+                type="text"
+                placeholder="اسم المستخدم"
+                class="input-field"
+                required
+            />
+            <input
+                type="password"
+                placeholder="كلمة المرور"
+                class="input-field"
+                required
+            />
+            <button
+                type="submit"
+                class="submit-btn w-full"
+            >
+                تسجيل الدخول
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let selectedAccount = null; // لتخزين نوع الحساب المختار
+
+            // دالة لاختيار نوع الحساب وتحديث الواجهة
+            window.selectAccount = function (type) {
+                selectedAccount = type;
+
+                // إزالة فئة 'selected' من جميع أزرار الحسابات
+                document.querySelectorAll('.account-btn').forEach((btn) => {
+                    btn.classList.remove('selected');
+                });
+
+                // إضافة فئة 'selected' للزر الذي تم النقر عليه
+                const clickedButton = document.querySelector(`.account-btn[data-type="${type}"]`);
+                if (clickedButton) {
+                    clickedButton.classList.add('selected');
+                }
+
+                // إظهار نموذج تسجيل الدخول
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('login-form').classList.add('flex'); // لجعلها flex-col
+            };
+
+            // معالج حدث عند إرسال نموذج تسجيل الدخول
+            document.getElementById('login-form').addEventListener('submit', function (e) {
+                e.preventDefault(); // منع السلوك الافتراضي للنموذج (إعادة تحميل الصفحة)
+
+                // التحقق مما إذا تم اختيار نوع حساب
+                if (!selectedAccount) {
+                    alert('يرجى اختيار نوع الحساب أولاً.');
+                    return;
+                }
+
+                // هنا يمكنك إضافة منطق التحقق من اسم المستخدم وكلمة المرور (عادة ما يتم ذلك عبر الخادم)
+                // في هذا المثال، سنقوم فقط بإعادة التوجيه بناءً على نوع الحساب المختار.
+
+                // التوجيه إلى لوحة التحكم المناسبة
+                switch (selectedAccount) {
+                    case 'طالب':
+                        window.location.href = 'student-dashboard.html'; // اسم ملف لوحة تحكم الطالب
+                        break;
+                    case 'معلم':
+                        window.location.href = 'teacher-dashboard.html'; // اسم ملف لوحة تحكم المعلم
+                        break;
+                    case 'مدير':
+                        window.location.href = 'admin-dashboard.html'; // اسم ملف لوحة تحكم المدير
+                        break;
+                    default:
+                        alert('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
